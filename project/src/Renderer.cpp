@@ -36,6 +36,7 @@ void Renderer::Render(Scene* pScene) const
 			float xNdc{ (2.f * (px + 0.5f) / m_Width - 1) * aspectRatio };
 			float yNdc{ 1.f - 2 * ((py + 0.5f) / m_Height) };
 			Vector3 rayDirection{ xNdc, yNdc ,1.f };
+			rayDirection.Normalize();
 
 			Ray vieuwRay{ Vector3{0,0,0}, rayDirection };
 			/*float gradient = px / static_cast<float>(m_Width);
