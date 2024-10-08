@@ -11,7 +11,7 @@ namespace dae
 		//SPHERE HIT-TESTS
 		inline bool HitTest_Sphere(const Sphere& sphere, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			ray.direction.Normalized();
+			//ray.direction.Normalize();
 			float A = Vector3::Dot(ray.direction, ray.direction);
 			float B = Vector3::Dot(2 * ray.direction, ray.origin - sphere.origin);
 			float C = Vector3::Dot(ray.origin - sphere.origin, ray.origin - sphere.origin) - sphere.radius * sphere.radius;
@@ -52,7 +52,7 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			ray.direction.Normalized();
+			//ray.direction.Normalize();
 			float t = Vector3::Dot(plane.origin - ray.origin, plane.normal) / Vector3::Dot(ray.direction, plane.normal);
 			//if (Vector3::Dot(ray.direction, plane.normal) != 0)
 			{
@@ -66,7 +66,11 @@ namespace dae
 					hitRecord.materialIndex = plane.materialIndex;
 					hitRecord.origin = ray.origin + t * ray.direction;
 				}
-				else hitRecord.didHit = false;
+				else
+				{
+					hitRecord.didHit = false;
+
+				}
 			}
 			//else hitRecord.didHit = false;
 			//throw std::runtime_error("Not Implemented Yet");
@@ -115,9 +119,10 @@ namespace dae
 		//Direction from target to light
 		inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
 		{
-			//todo W3
-			throw std::runtime_error("Not Implemented Yet");
-			return {};
+			Vector3 shadowRay{light.origin - origin};
+			shadowRay.Normalize();
+			//throw std::runtime_error("Not Implemented Yet");
+			return {shadowRay};
 		}
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)

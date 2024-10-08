@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "Utils.h"
 #include "Material.h"
+#include "iostream"
 
 namespace dae {
 
@@ -53,9 +54,44 @@ namespace dae {
 
 	bool Scene::DoesHit(const Ray& ray) const
 	{
-		//todo W2
-		throw std::runtime_error("Not Implemented Yet");
-		return false;
+
+		HitRecord hitRecord{};
+		bool hit{ false };
+
+		for (int idx{}; idx < m_PlaneGeometries.size(); ++idx)
+		{
+			if (GeometryUtils::HitTest_Plane(m_PlaneGeometries[idx], ray, hitRecord) && hitRecord.t > ray.min && hitRecord.t < ray.max) hit = true;
+		}
+		for (int idx{}; idx < m_SphereGeometries.size(); ++idx)
+		{
+			if (GeometryUtils::HitTest_Sphere(m_SphereGeometries[idx], ray, hitRecord) && hitRecord.t > ray.min && hitRecord.t < ray.max) hit = true;
+		}
+		//if (m_PlaneGeometries.size() >= 1)
+		//{
+		//	for (int idx{ 0 }; idx < m_PlaneGeometries.size(); ++idx)
+		//	{
+		//		GeometryUtils::HitTest_Plane(m_PlaneGeometries[idx], normalisedRay, hitRecord);
+		//		if (hitRecord.didHit && hitRecord.t < ray.direction.Magnitude() && hitRecord.t > 0.01f)
+		//		{
+		//			//std::cout << hitRecord.t << std::endl;
+		//			return true;
+		//		}
+		//	}
+		//	
+		//}
+		//if (m_SphereGeometries.size() >= 1)
+		//{
+		//	for (int idx{ 0 }; idx < m_SphereGeometries.size(); ++idx)
+		//	{
+		//		GeometryUtils::HitTest_Sphere(m_SphereGeometries[idx], normalisedRay, hitRecord);
+		//		if (hitRecord.didHit && hitRecord.t < ray.direction.Magnitude() && hitRecord.t > 0.01f)
+		//		{
+		//			return true;
+		//		}
+		//	}
+		//}
+		//throw std::runtime_error("Not Implemented Yet");
+		return hit;
 	}
 
 #pragma region Scene Helpers
@@ -124,8 +160,11 @@ namespace dae {
 #pragma endregion
 
 #pragma region SCENE W1
-	void Scene_W1::Initialize()
+	void Scene_W2::Initialize()
 	{
+		//default: Material id0 >> SolidColor Material (RED)
+		m_Camera.origin = { 0.f, 3.f, -9.f };
+		m_Camera.fovAngle = 45.f;
 		//default: Material id0 >> SolidColor Material (RED)
 		constexpr unsigned char matId_Solid_Red = 0;
 		const unsigned char matId_Solid_Blue = AddMaterial(new Material_SolidColor{ colors::Blue });
@@ -134,16 +173,58 @@ namespace dae {
 		const unsigned char matId_Solid_Green = AddMaterial(new Material_SolidColor{ colors::Green });
 		const unsigned char matId_Solid_Magenta = AddMaterial(new Material_SolidColor{ colors::Magenta });
 
-		//Spheres
-		AddSphere({ -25.f, 0.f, 100.f }, 50.f, matId_Solid_Red);
-		AddSphere({ 25.f, 0.f, 100.f }, 50.f, matId_Solid_Blue);
-
 		//Plane
-		AddPlane({ -75.f, 0.f, 0.f }, { 1.f, 0.f,0.f }, matId_Solid_Green);
-		AddPlane({ 75.f, 0.f, 0.f }, { -1.f, 0.f,0.f }, matId_Solid_Green);
-		AddPlane({ 0.f, -75.f, 0.f }, { 0.f, 1.f,0.f }, matId_Solid_Yellow);
-		AddPlane({ 0.f, 75.f, 0.f }, { 0.f, -1.f,0.f }, matId_Solid_Yellow);
-		AddPlane({ 0.f, 0.f, 125.f }, { 0.f, 0.f,-1.f }, matId_Solid_Magenta);
+		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f }, matId_Solid_Green);
+		AddPlane({ 5.f, 0.f, 0.f }, { -1.f, 0.f, 0.f }, matId_Solid_Green);
+		AddPlane({ 0.f, -1.f, 0.f }, { 0.f, 1.f, 0.f }, matId_Solid_Yellow);
+		AddPlane({ 0.f, 10.f, 0.f }, { 0.f, -1.f, 0.f }, matId_Solid_Yellow);
+		AddPlane({ 0.f, 0.f, 10.f }, { 0.f, 0.f, -1.f }, matId_Solid_Magenta);
+
+		//Spheres
+		AddSphere({ -1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
+		AddSphere({ 0.f, 1.f, 0.f }, .75f, matId_Solid_Blue);
+		AddSphere({ 1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
+		AddSphere({ -1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+		AddSphere({ 0.f, 3.f, 0.f }, .75f, matId_Solid_Red);
+		AddSphere({ 1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+
+		//Light
+		AddPointLight({ 0.f, 5.f, -5.f }, 70.f, colors::White);
 	}
 #pragma endregion
+	void Scene_W3::Initialize()
+	{
+		m_Camera.origin = { 0.f, 3.f, -9.f };
+		m_Camera.fovAngle = 45.f;
+
+		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, 1.f));
+		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, .6f));
+		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, .1f));
+
+		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, 0.f, 1.f));
+		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, 0.f, .6f));
+		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, 0.f, .1f));
+
+		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
+
+		// Planes
+		AddPlane({ 0.f, 0.f, 10.f }, { 0.f, 0.f, -1.f }, matLambert_GrayBlue);
+		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_GrayBlue);
+		AddPlane({ 0.f, 10.f, 0.f }, { 0.f, -1.f, 0.f }, matLambert_GrayBlue);
+		AddPlane({ 5.f, 0.f, 0.f }, { -1.f, 0.f, 0.f }, matLambert_GrayBlue);
+		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f }, matLambert_GrayBlue);
+
+		// Spheres
+		AddSphere({ -1.75f, 1.f, 0.f }, 0.75f, matCT_GrayRoughMetal);
+		AddSphere({ 0.f, 1.f, 0.f }, 0.75f, matCT_GrayMediumMetal);
+		AddSphere({ 1.75f, 1.f, 0.f }, 0.75f, matCT_GraySmoothMetal);
+		AddSphere({ -1.75f, 3.f, 0.f }, 0.75f, matCT_GrayRoughPlastic);
+		AddSphere({ 0.f, 3.f, 0.f }, 0.75f, matCT_GrayMediumPlastic);
+		AddSphere({ 1.75f, 3.f, 0.f }, 0.75f, matCT_GraySmoothPlastic);
+
+		// Lights
+		AddPointLight({ 0.f, 5.f, 5.f }, 50.f, { 1.f, .61f, .45f });
+		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, { 1.f, .8f, .45f });
+		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, { .34f, .47f, .68f });
+	}
 }
