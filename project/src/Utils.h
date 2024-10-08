@@ -120,7 +120,6 @@ namespace dae
 		inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
 		{
 			Vector3 shadowRay{light.origin - origin};
-			shadowRay.Normalize();
 			//throw std::runtime_error("Not Implemented Yet");
 			return {shadowRay};
 		}
