@@ -67,10 +67,11 @@ void Renderer::Render(Scene* pScene) const
 							finalColor += materials[closestHit.materialIndex]->Shade(closestHit, lights[idx].direction, vieuwRay.direction);
 						}*/
 						Ray shadowRay{ closestHit.origin + 0.01f * closestHit.normal,LightUtils::GetDirectionToLight(lights[idx], closestHit.origin)};
+						shadowRay.min = 0.01f;
 						shadowRay.max = LightUtils::GetDirectionToLight(lights[idx], closestHit.origin).Magnitude();
 						float observedArea{ Vector3::Dot(closestHit.normal, shadowRay.direction)};
 						/*const Vector3 lightDirection = LightUtils::GetDirectionToLight(lights[idx], closestHit.origin);
-						float observedArea{ Vector3::Dot(closestHit.normal, -lightDirection.Normalized()) };*/
+						float observedArea{ Vector3::Dot(closestHit.normal, lightDirection.Normalized()) };*/
 						
 						if (observedArea > 0)
 						{
