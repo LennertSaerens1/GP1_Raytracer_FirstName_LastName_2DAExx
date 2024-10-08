@@ -66,6 +66,7 @@ namespace dae {
 		{
 			if (GeometryUtils::HitTest_Sphere(m_SphereGeometries[idx], ray, hitRecord) && hitRecord.t > ray.min && hitRecord.t < ray.max) hit = true;
 		}
+		return hit;
 		//if (m_PlaneGeometries.size() >= 1)
 		//{
 		//	for (int idx{ 0 }; idx < m_PlaneGeometries.size(); ++idx)
@@ -91,7 +92,7 @@ namespace dae {
 		//	}
 		//}
 		//throw std::runtime_error("Not Implemented Yet");
-		return hit;
+		
 	}
 
 #pragma region Scene Helpers
